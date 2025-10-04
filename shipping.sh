@@ -9,7 +9,7 @@ N="\e[0m"
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
 SCRIPT_DIR=$PWD
-MONGODB_HOST=mongodb.surendevops.fun.fun
+MONGODB_HOST=mongodb.surendevops.fun
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log" # /var/log/shell-script/16-logs.log
 MYSQL_HOST=mysql.surendevops.fun
 
@@ -52,13 +52,20 @@ unzip /tmp/shipping.zip &>>$LOG_FILE
 VALIDATE $? "unzip shipping"
 
 mvn clean package  &>>$LOG_FILE
-mv target/shipping-1.0.jar shipping.jar 
+mv target/shipping-1.0.jar shipping.jar
+VALIDATE $? "installing dependencies"
 
 cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
+VALIDATE $? "copying systemctl files"
+
 systemctl daemon-reload
+VALIDATE $? "daemon reloading"
+
 systemctl enable shipping  &>>$LOG_FILE
+VALIDATE $? "enabling shipping"
 
 dnf install mysql -y  &>>$LOG_FILE
+VALIDATE $? "installing mysql"
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>>$LOG_FILE
 if [ $? -ne 0 ]; then
@@ -68,5 +75,11 @@ if [ $? -ne 0 ]; then
 else
     echo -e "Shipping data is already loaded ... $Y SKIPPING $N"
 fi
+VALIDATE $? "loading database"
 
 systemctl restart shipping
+VALIDATE $? "restarting shipping"
+
+END_TIME=$(date +%s)
+TOTAL_TIME=$(( $END_TIME - $START_TIME ))
+echo -e "Script executed in: $Y $TOTAL_TIME Seconds $N"
