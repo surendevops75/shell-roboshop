@@ -71,9 +71,9 @@ if [ $? -ne 0 ]; then
     mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql  &>>$LOG_FILE
     mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>>$LOG_FILE
 else
-        
     echo -e "Shipping data is already loaded ... $Y SKIPPING $N"
 fi
+VALIDATE $? "database loaded"
 
 systemctl restart shipping
 VALIDATE $? "restarted shipping"
