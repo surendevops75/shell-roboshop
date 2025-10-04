@@ -34,7 +34,11 @@ dnf install maven -y &>>$LOG_FILE
 
 id roboshop &>>$LOG_FILE
 if [ $? -ne 0 ]; then
-    useradd --system --home /app --shell /sb
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
+    VALIDATE $? "Creating system user"
+else
+    echo -e "User already exist ... $Y SKIPPING $N"
+fi
 
 mkdir -p /app
 VALIDATE $? "Creating app directory"
@@ -52,20 +56,13 @@ unzip /tmp/shipping.zip &>>$LOG_FILE
 VALIDATE $? "unzip shipping"
 
 mvn clean package  &>>$LOG_FILE
-mv target/shipping-1.0.jar shipping.jar
-VALIDATE $? "installing dependencies"
+mv target/shipping-1.0.jar shipping.jar 
 
 cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
-VALIDATE $? "copying systemctl files"
-
 systemctl daemon-reload
-VALIDATE $? "daemon reloading"
-
 systemctl enable shipping  &>>$LOG_FILE
-VALIDATE $? "enabling shipping"
 
 dnf install mysql -y  &>>$LOG_FILE
-VALIDATE $? "installing mysql"
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>>$LOG_FILE
 if [ $? -ne 0 ]; then
@@ -75,11 +72,5 @@ if [ $? -ne 0 ]; then
 else
     echo -e "Shipping data is already loaded ... $Y SKIPPING $N"
 fi
-VALIDATE $? "loading database"
 
 systemctl restart shipping
-VALIDATE $? "restarting shipping"
-
-END_TIME=$(date +%s)
-TOTAL_TIME=$(( $END_TIME - $START_TIME ))
-echo -e "Script executed in: $Y $TOTAL_TIME Seconds $N"
