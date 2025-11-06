@@ -1,7 +1,7 @@
 #!/bin/bash
 
 AMI_ID="ami-09c813fb71547fc4f"
-SG_ID="sg-023e95f9ad8b4897e"
+SG_ID="sg-04f2c9f5066a1bf36"
 ZONE_ID="Z10042263JCJ5ZTK2AT9J"
 DOMAIN_NAME="surendevops.fun"
 
