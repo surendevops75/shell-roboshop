@@ -12,6 +12,8 @@ It demonstrates real-world DevOps automation using Linux shell scripting for app
 
 Roboshop is a microservices-based e-commerce application commonly used for DevOps practice.
 
+
+
 This repository automates the setup of:
 
 - Frontend Web Server
